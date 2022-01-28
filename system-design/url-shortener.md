@@ -54,7 +54,7 @@
      - Higher latency than the previous approach
 
 
-
+![](url-shortener.jpg)
 
 
 
