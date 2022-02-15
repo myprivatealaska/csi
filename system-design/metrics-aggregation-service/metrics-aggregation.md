@@ -29,7 +29,7 @@ until they're ready to be processed by the Ingestion Service(s). By default, AWS
 per second with batching. This should be enough for our use-case. 
 
 For reads, the access pattern is: retrieve all values for a metric_id in a specified time range for a label (or set of labels)
-To support this querying pattern, let's use a wide-column data store such as Cassandra. Let's use metric + timestamp + service_id as PK. value and labels will be our columns. 
+To support this querying pattern, let's use a wide-column data store such as Cassandra. Let's use metric + timestamp + server_id as PK. value and labels will be our columns. 
 
 Considering that we're expecting  0.2 Mb/sec of data, we will need ~17 GB to store a day worth of data. (6 Tb per year)
 Theoretically, this could be achieved with a single HDD. Considering that we might want to compress historical data, we might need even less than that. However, we also want to do regular backups to make sure we don't lose historical data.
@@ -39,12 +39,10 @@ Since we prioritize latest data over historical data, we might want to cache a d
 ### Architecture
 
 #### Write
-A Node Agent (or a library) collecting metrics puts a batch of metrics collected from the server on SNS. An Ingestion Service  
-picks up a message and stores it in the DB. Optionally, an Alerting service picks up the message as well and, if needed, alerts on it.
+A Node Agent (or a library) collecting metrics puts a batch of metrics collected from the server on SNS. An Ingestion Service picks up a message and stores it in the DB. Optionally, an Alerting service picks up the message as well and, if needed, alerts on it.
 
 #### Read
-Dashboard UI requests metrics data for a time period for some service_group. If it's today's data, it should be in cache and we can  
-avoid a trip to the DB. Otherwise, fetch the data from the DB and return back to the UI.
+Dashboard UI requests metrics data for a time period for some service_group. If it's today's data, it should be in cache, and we can avoid a trip to the DB. Otherwise, fetch the data from the DB and return to the UI.
 
 ![](Metrics.drawio.png)
   
